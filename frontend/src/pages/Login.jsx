@@ -1,14 +1,37 @@
 import React, { useState } from 'react';
 import { login } from '../api/api';
+import { useMutation } from '@tanstack/react-query';
+import { useDispatch } from 'react-redux';
+import { setUserData } from '../redux/slice/UserSlice';
+import { useLocation, useNavigate } from 'react-router';
+import { toast } from 'react-toastify';
+import { showToast } from '../redux/slice/ToastSlice';
 
 function Login() {
     const [formData, setFormData] = useState({
-        usertype: 'superadmin',
         email: '',
         password: ''
     });
 
     const [errors, setErrors] = useState({});
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathName || '/';
+    // useMutation for login
+    const { mutate, isLoading, isSuccess, isError, error } = useMutation({
+        mutationFn: ({ email, password }) => login(email, password),
+        onSuccess: (response) => {
+            if (response?.data) {
+                dispatch(setUserData(response.data)); // Store user data in Redux
+                dispatch(showToast({ message: `Logged In Successfully...`, type: 'success' }))
+                navigate(from, { replace: true });
+            }
+        },
+        onError: (error) => {
+            dispatch(showToast({ message: error, type: 'success' }))
+        }
+    });
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -38,24 +61,21 @@ function Login() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = async(e) => {
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (validateForm()) {
-            const data= await login(formData.email,formData.password)
-            if(data){
-                console.log(data);
-                
-            }
-            else{
-                console.log('err');
-                
-            }
-
-        } else {
-            console.log('Form has errors. Please fix them.');
+            mutate({ email: formData.email, password: formData.password })
         }
-    };
+        else {
+            console.log('err');
+
+        }
+
+    }
+
+
 
     return (
         <div className='mt-10 flex justify-center'>
@@ -66,24 +86,9 @@ function Login() {
                     </h3>
                 </div>
 
-                <form onSubmit={handleSubmit} noValidate>
-                    <div className='flex justify-center gap-14 py-5 text-[1.2vw]'>
-                        {['superadmin', 'admin', 'user'].map((type) => (
-                            <label key={type}>
-                                <input
-                                    type='radio'
-                                    name='usertype'
-                                    value={type}
-                                    checked={formData.usertype === type}
-                                    onChange={handleChange}
-                                />
-                                {type.charAt(0).toUpperCase() + type.slice(1)}
-                            </label>
-                        ))}
-                    </div>
-
-                    <div className='flex items-center flex-col'>
-                        <div className='w-8/12 my-5'>
+                <form onSubmit={handleSubmit} >
+                    <div className='flex items-center flex-col mt-6 mb-5'>
+                        <div className='w-8/12 '>
                             <input
                                 type='email'
                                 name='email'
@@ -118,8 +123,9 @@ function Login() {
                         <button
                             type='submit'
                             className='border ps-10 py-1 rounded-3xl text-[1.3vw] bg-sky-500 hover:bg-sky-600 text-white outline-0 cursor-pointer'
+                            disabled={isLoading}
                         >
-                            Login <i className="ps-3 pe-5 ri-arrow-right-long-line"></i>
+                            {isLoading ? 'Logging In' : 'Login '} <i className="ps-3 pe-5 ri-arrow-right-long-line"></i>
                         </button>
                     </div>
                 </form>

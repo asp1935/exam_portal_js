@@ -22,7 +22,7 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
         const user = await User.findOne({
             where: { id: decodedToken?.id },
-            attributes: { exclude: ["password"] },
+            attributes: { exclude: ["password","createdAt","updatedAt"] },
         });
 
         if (!user) {

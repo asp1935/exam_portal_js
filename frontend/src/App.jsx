@@ -1,5 +1,4 @@
 import { BrowserRouter, Route, Routes } from 'react-router'
-import { useQuery } from '@tanstack/react-query'
 import './App.css'
 import Login from './pages/Login'
 import Home from './components/Home'
@@ -7,12 +6,42 @@ import Header from './components/Header'
 import ProtededRoute from './components/ProtededRoute'
 import Dashboard from './pages/Dashboard'
 import GuestRoute from './components/GuestRoute'
+import { getloggedInUser } from './api/api'
+import { useDispatch } from 'react-redux'
+import { setUserData } from './redux/slice/UserSlice'
+import { useEffect } from 'react'
+import { ToastContainer, toast } from 'react-toastify';
+import { showToast } from './redux/slice/ToastSlice'
+import District from './pages/District'
+import Taluka from './pages/Taluka'
 
 function App() {
-  // const {data,isLoading,isSuccess,isError,error}=useQuery({
-  //   queryKey:['user'],
-  //   queryFn:getCurrent
-  // })
+
+  const dispatch = useDispatch();
+
+
+  const setCurrentLoggedInUser = async () => {
+    try {
+      const responce = await getloggedInUser();
+      if (responce?.data) {
+        console.log('app', responce.data);
+
+        dispatch(setUserData(responce.data))
+        dispatch(showToast({ message: `Welcome Back ${responce.data.role || 'User'}` }))
+      }
+
+    } catch (error) {
+      toast(error)
+    }
+  }
+
+  useEffect(() => {
+    setCurrentLoggedInUser();
+  }, [dispatch])
+
+
+
+
   return (
     <>
       <BrowserRouter>
@@ -23,14 +52,22 @@ function App() {
             <Route path='/login' element={<Login />} />
           </Route>
 
-          {/* Protected Route ass per Role  */}
-          <Route element={<ProtededRoute allowedRoles={['admin']} />}>
-            <Route path='/dashboard' element={<Dashboard />} />
+          <Route element={<ProtededRoute />}>
+            <Route path='/' element={<Home />}>
+              <Route path='/dashboard' element={<Dashboard />} />
+              <Route element={<ProtededRoute allowedRoles={['superadmin', 'admin']} />}>
+                <Route path='/district' element={<District />} />
+                <Route path='/taluka' element={<Taluka />} />
+              </Route>
+            </Route>
           </Route>
 
-          
+
+
+
           <Route path="*" element={<div>404 - Not Found</div>} />
         </Routes>
+        <ToastContainer position='top-right' autoClose={3000} theme='light' />
       </BrowserRouter>
     </>
   )

@@ -1,4 +1,4 @@
-import { DataTypes,Op } from "sequelize";
+import { DataTypes,Op, where } from "sequelize";
 import sequelize from "../config/db.js";
 import User from "../models/user.model.js";
 import { APIResponce } from "../utils/APIResponce.js";
@@ -133,7 +133,11 @@ const loginUser = asyncHandler(async (req, res) => {
     if (!isPasswordCorrect) {
         return res.status(400).json(new APIResponce(400, {}, "Invalid Credentails"))
     }
-    const accessToken = await userExist.genrateAccessToken();
+    const loggedUser=await User.findOne({
+        where:{id:userExist.id},
+        attributes:{exclude: ["password","createdAt","updatedAt"] }
+    })
+    const accessToken = await loggedUser.genrateAccessToken();
 
     const options = {
         httpOnly: true,
@@ -144,7 +148,7 @@ const loginUser = asyncHandler(async (req, res) => {
     return res
         .status(200)
         .cookie('accessToken', accessToken, options)
-        .json(new APIResponce(200, { userExist, accessToken }, 'Logged In Succesfully'));
+        .json(new APIResponce(200, { loggedUser, accessToken }, 'Logged In Succesfully'));
 });
 
 const logoutUser = asyncHandler(async (req, res) => {

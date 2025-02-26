@@ -2,18 +2,26 @@ import axios from "axios"
 
 const apiUrl = import.meta.env.VITE_API_URL
 
-export const login = async (email,password) => {
+export const login = async (email, password) => {
     try {
-        // const responce1 = await axios.post(`${apiUrl}/user/login`,{loginData}, { withCredentials: true });
-        // console.log(responce1.data);
-        
-
-        const responce = await axios.post(`${apiUrl}/user/login`, {email,password}, { withCredentials: true });
+        const responce = await axios.post(`${apiUrl}/user/login`, { email, password }, { withCredentials: true });
         return responce.data;
     } catch (error) {
-        console.log(error);
-        
+        throw error.response?.data?.message || 'Login failed. Please check your credentials.';
     }
 }
+
+export const getloggedInUser = async () => {
+    try {
+        const responce = await axios.get(`${apiUrl}/user/current-user`, { withCredentials: true });
+        return responce.data
+    } catch (error) {
+        throw 'Session Expired!!! Please Login Again...';
+    }
+}
+
+
+
+
 
 

@@ -118,6 +118,53 @@ const getTalukasByDist = asyncHandler(async (req, res) => {
     }
 });
 
+
+const getTalukas = asyncHandler(async (req, res) => {
+    try {
+        const { distId } = req.params;
+
+        let whereCondition = {};
+        if (distId) {
+            const district = await District.findByPk(distId);
+            if (!district) {
+                return res.status(404).json(new APIResponce(404, {}, 'District Not Found!!!'));
+            }
+            whereCondition = { districtId: distId };
+        }
+
+        const talukas = await Taluka.findAll({
+            where: whereCondition,
+            include: [{
+                model: District,
+                as: 'district',
+                attributes: ['districtName']
+            }],
+            attributes: ['id', 'talukaName', 'createdAt', 'updatedAt'],
+            order:[['districtId', 'DESC']]
+        });
+
+        if (!talukas.length) {
+            return res.status(404).json(new APIResponce(404, [], 'No Talukas Found!!!'));
+        }
+
+        const result = talukas.map(taluka => ({
+            id: taluka.id,
+            districtName: taluka.district?.districtName,
+            talukaName: taluka.talukaName,
+            createdAt: taluka.createdAt,
+            updatedAt: taluka.updatedAt
+        }));
+
+        return res.status(200).json(new APIResponce(200, result, 'Talukas Fetched Successfully'));
+    } catch (error) {
+        console.error('Server Error:', error);
+        return res.status(500).json(new APIResponce(500, {}, 'Internal Server Error!!!'));
+    }
+});
+
+
+
+
 const updateTaluka = asyncHandler(async (req, res) => {
     const { talukaId } = req.params;
     const { newTalukaName } = req.body;
@@ -188,7 +235,19 @@ const deleteTaluka = asyncHandler(async (req, res) => {
 //district wise pdf
 const downloadTalukaList = asyncHandler(async (req, res) => {
     try {
+
+        const { distId } = req.params;
+
+        let whereCondition = {};
+        if (distId) {
+            const district = await District.findByPk(distId);
+            if (!district) {
+                return res.status(404).json(new APIResponce(404, {}, 'District Not Found!!!'));
+            }
+            whereCondition = { districtId: distId };
+        }
         const allTalukas = await Taluka.findAll({
+            where: whereCondition,
             include: [{
                 model: District,
                 as: 'district',
@@ -196,6 +255,7 @@ const downloadTalukaList = asyncHandler(async (req, res) => {
             }],
             attributes: ['id', 'talukaName'],
         });
+        
         if (!allTalukas) {
             return res.status(204).json(new APIResponce(204, {}, 'No Data Present!!!'))
         }
@@ -209,10 +269,10 @@ const downloadTalukaList = asyncHandler(async (req, res) => {
 
         // Sort talukas by districtName
         talukas.sort((a, b) => {
-            if (a.districtName < b.districtName) {
+            if (b.districtName < a.districtName) {
                 return -1; // a comes before b
             }
-            if (a.districtName > b.districtName) {
+            if (b.districtName > a.districtName) {
                 return 1; // b comes before a
             }
             return 0; // a and b are equal
@@ -351,4 +411,5 @@ export {
     getTalukasByDist,
     deleteTaluka,
     downloadTalukaList,
+    getTalukas
 }
