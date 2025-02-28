@@ -13,10 +13,10 @@ export default {
       rMobile: {
         type: Sequelize.BIGINT,
         allowNull: false,
-        unique: true
       },
       centerId:{
         type:Sequelize.INTEGER,
+        unique: true,
         references:{
           model:'Centers',
           key:'id',

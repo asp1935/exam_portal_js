@@ -13,9 +13,9 @@ function DistrictList() {
   const [isDisable, setIsDisable] = useState(false);
   const updateDistrictMutation = useUpdateDistrict();
   const deleteDstrictMuatation = useDeleteDistrict();
-  const {data:pdfUrl,  refetch, isFetching } =useDownloadPDF();
+  const { data: pdfUrl, refetch, isFetching } = useDownloadPDF();
 
-  const handleDownload=()=>{
+  const handleDownload = () => {
     refetch();
   }
   useEffect(() => {
@@ -38,8 +38,8 @@ function DistrictList() {
   const handleDelete = async (id) => {
     setIsDisable(true);
     if (window.confirm('Do you want to Delete District?')) {
-      deleteDstrictMuatation.mutate({id},{
-        onSuccess: () => { dispatch(showToast({ message: 'District Deleted Successfully...' }))},
+      deleteDstrictMuatation.mutate({ id }, {
+        onSuccess: () => { dispatch(showToast({ message: 'District Deleted Successfully...' })) },
         onError: (error) => dispatch(showToast({ message: error, type: 'error' }))
       })
     }
@@ -56,12 +56,13 @@ function DistrictList() {
 
   return (
     <>
-      {districts?.data?.length > 0 ? (
-        <div className='w-full px-20 py-10'>
-          <div className='flex justify-between'>
-            <h1 className='text-[1.5vw]'>Districts <i className="ri-file-list-line"></i></h1>
-            <button type='button' className='bg-blue-500 px-2 rounded-xl text-white hover:border border-black' onClick={handleDownload} disabled={isFetching} >{isFetching ? 'Downloading...' : 'Download List'} <i className="ri-download-cloud-2-line text-white"></i></button>
-          </div>
+
+      <div className='w-full px-20 py-10'>
+        <div className='flex justify-between'>
+          <h1 className='text-[1.5vw]'>Districts <i className="ri-file-list-line"></i></h1>
+          <button type='button' className={`mx-1 bg-blue-500 px-2 py-1 rounded-xl text-white hover:border border-black ${districts?.data?.length === 0?'cursor-not-allowed opacity-50 pointer-events-none':'cursor-pointer'}`} onClick={handleDownload} disabled={isFetching} >{isFetching ? 'Downloading...' : 'Download List'} <i className="ri-download-cloud-2-line text-white"></i></button>
+        </div>
+        {districts?.data?.length > 0 ? (
           <div className='w-full flex flex-col justify-center mt-8'>
             <table className='rounded-2xl'>
               <thead className='rounded-2xl'>
@@ -133,10 +134,12 @@ function DistrictList() {
               </tbody>
             </table>
           </div>
-        </div>
-      ) : (
-        <p>No districts available.</p>
-      )}
+        ) : (
+          <div className='flex justify-center pt-16 text-2xl'>
+            <p className='underline underline-offset-2 decoration-red-500'>No District available.....</p>
+          </div>
+        )}
+      </div>
     </>
   );
 }

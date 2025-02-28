@@ -2,48 +2,63 @@ import axios from "axios";
 
 const apiUrl = import.meta.env.VITE_API_URL
 
-export const getTalukas = async (distId = null) => {
+export const getCenters = async (districtId = null, talukaId = null) => {
     try {
-        const endpoint = distId ? `${apiUrl}/taluka/get-talukas/${distId}` : `${apiUrl}/taluka/get-talukas`;
-        const response = await axios.get(endpoint, { withCredentials: true });
+        // Construct query parameters dynamically
+        const params = new URLSearchParams();
+        if (districtId) params.append('districtId', districtId);
+        if (talukaId) params.append('talukaId', talukaId);
+
+        const response = await axios.get(`${apiUrl}/center/get-centers?${params.toString()}`, { withCredentials: true });
         return response.data;
     } catch (error) {
-        throw new Error(error.response?.data?.message || "Failed to fetch talukas");
+        throw new Error(error.response?.data?.message || "Failed to fetch Centers");
     }
 };
 
-export const addTaluka = async (districtId, talukaName) => {
+
+export const addCenter = async (talukaId, centerName) => {
     try {
-        const response = await axios.post(`${apiUrl}/taluka/add-taluka`, {districtId, talukaName }, { withCredentials: true });
+        console.log(talukaId,centerName);
+        
+        const response = await axios.post(`${apiUrl}/center/add-center`, {talukaId, centerName }, { withCredentials: true });
         return response.data
     } catch (error) {
-        throw error.response?.data?.message || "Failed to Add Taluka";
+        throw error.response?.data?.message || "Failed to Add Center";
     }
 }
 
-export const updateTaluka = async (talukaId,newTalukaName) => {
+export const updateCenter = async (centerId,newCenterName) => {
     try {
-        const response = await axios.patch(`${apiUrl}/taluka/update-taluka/${talukaId}`, { newTalukaName }, { withCredentials: true });
+        console.log(centerId,newCenterName);
+        
+        const response = await axios.patch(`${apiUrl}/center/update-center/${centerId}`, {newCenterName }, { withCredentials: true });
         return response.data
     } catch (error) {
         throw error.response?.data?.message || "Failed to Update Talukas";
     }
 }
 
-export const deleteTaluka = async (talukaId) => {
+export const deleteCenter = async (centerId) => {
     try {
-        const response = await axios.delete(`${apiUrl}/taluka/delete-taluka/${talukaId}`, { withCredentials: true });
+        const response = await axios.delete(`${apiUrl}/center/delete-center/${centerId}`, { withCredentials: true });
         return response.data
     } catch (error) {
         throw error.response?.data?.message || "Failed to Delete Taluka";
     }
 }
 
-export const downloadTalukaPdf = async (distId=null) => {
+export const downloadCenterPdf = async (districtId=null,talukaId=null) => {
     try {
-        const endpoint = distId ? `${apiUrl}/taluka/download-taluka-list/${distId}` : `${apiUrl}/taluka/download-taluka-list`;
 
-      const response = await axios.get(endpoint, {
+        // Construct query parameters dynamically
+        console.log(districtId,talukaId);
+        
+        const params = new URLSearchParams();
+        if (districtId) params.append('districtId', districtId);
+        if (talukaId) params.append('talukaId', talukaId);
+
+      const response = await axios.get(`${apiUrl}/center/download-center-list?${params.toString()}`, {
         withCredentials: true,
         responseType: 'blob', //  response is treated as a binary file
       });

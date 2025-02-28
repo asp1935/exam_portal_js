@@ -3,7 +3,7 @@ import District from '../models/district.model.js';
 import Taluka from '../models/taluka.model.js';
 import { APIResponce } from '../utils/APIResponce.js';
 import { asyncHandler } from '../utils/AsyncHandler.js';
-import {fileURLToPath} from 'url';
+import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
 import PDFDocument from 'pdfkit';
@@ -72,7 +72,33 @@ const addCenter = asyncHandler(async (req, res) => {
 
 const getAllCenters = asyncHandler(async (req, res) => {
     try {
+        const { districtId, talukaId } = req.query;
+        let whereCondition = {};
+
+        if (districtId) {
+            const district = await District.findByPk(districtId);
+            if (!district) {
+                return res.status(404).json(new APIResponce(404, {}, 'District Not Found!!!'));
+            }
+        }
+
+        if (talukaId) {
+            const taluka = await Taluka.findByPk(talukaId);
+            if (!taluka) {
+                return res.status(404).json(new APIResponce(404, {}, 'Taluka Not Found!!!'));
+            }
+        }
+        // Apply filters if IDs are provided
+        if (districtId && talukaId) {
+            whereCondition = { talukaId };
+        } else if (districtId) {
+            whereCondition = {
+                '$taluka.district.id$': districtId // Filter by district indirectly via taluka
+            };
+        }
+
         const allCenters = await Center.findAll({
+            where: whereCondition,
             include: [
                 {
                     model: Taluka,
@@ -99,9 +125,9 @@ const getAllCenters = asyncHandler(async (req, res) => {
 
 const updateCenter = asyncHandler(async (req, res) => {
     const { centerId } = req.params;
-    const { newTalukaId, newCenterName } = req.body;
+    const { newCenterName } = req.body;
 
-    if (!centerId || !newTalukaId || !newCenterName) {
+    if (!centerId || !newCenterName) {
         return res.status(400).json(new APIResponce(400, {}, "All Fields are Required!!!"))
     }
     try {
@@ -109,11 +135,7 @@ const updateCenter = asyncHandler(async (req, res) => {
         if (!center) {
             return res.status(404).json(new APIResponce(404, {}, 'Center not Found!!!'));
         }
-        const taluka = await Taluka.findByPk(newTalukaId);
-        if (!taluka) {
-            return res.status(404).json(new APIResponce(404, {}, 'Taluka not Found!!!'));
-        }
-        center.talukaId = newTalukaId;
+
         center.centerName = newCenterName;
         await center.save();
 
@@ -173,24 +195,49 @@ const deleteCenter = asyncHandler(async (req, res) => {
 
 const downloadCenterList = asyncHandler(async (req, res) => {
     try {
-        const allCenters=await Center.findAll({
-            include:[{
-                model:Taluka,
-                as:'taluka',
-                attributes:['talukaName'],
-                include:[{
-                    model:District,
-                    as:'district',
-                    attributes:['districtName']
+        const { districtId, talukaId } = req.query;
+        let whereCondition = {};
+
+        if (districtId) {
+            const district = await District.findByPk(districtId);
+            if (!district) {
+                return res.status(404).json(new APIResponce(404, {}, 'District Not Found!!!'));
+            }
+        }
+
+        if (talukaId) {
+            const taluka = await Taluka.findByPk(talukaId);
+            if (!taluka) {
+                return res.status(404).json(new APIResponce(404, {}, 'Taluka Not Found!!!'));
+            }
+        }
+        // Apply filters if IDs are provided
+        if (districtId && talukaId) {
+            whereCondition = { talukaId };
+        } else if (districtId) {
+            whereCondition = {
+                '$taluka.district.id$': districtId // Filter by district indirectly via taluka
+            };
+        }
+        const allCenters = await Center.findAll({
+            where:whereCondition,
+            include: [{
+                model: Taluka,
+                as: 'taluka',
+                attributes: ['talukaName'],
+                include: [{
+                    model: District,
+                    as: 'district',
+                    attributes: ['districtName']
                 }]
             }],
-            attributes:['id','centerName']
+            attributes: ['id', 'centerName']
         })
-        if(!allCenters){
-            return res.status(204).json(new APIResponce(204,{},'No Centers'))
+        if (!allCenters) {
+            return res.status(204).json(new APIResponce(204, {}, 'No Centers'))
         }
-        const centers=distructObject(allCenters);
-        
+        const centers = distructObject(allCenters);
+
         // Sort talukas by districtName
         centers.sort((a, b) => {
             if (a.districtName < b.districtName) {
@@ -201,7 +248,7 @@ const downloadCenterList = asyncHandler(async (req, res) => {
             }
             return 0; // a and b are equal
         });
-        
+
         // Create a new PDF document
         const doc = new PDFDocument({ size: 'A4', layout: 'portrait' });
 
@@ -234,8 +281,8 @@ const downloadCenterList = asyncHandler(async (req, res) => {
         doc.moveDown();
 
         // Define table parameters
-        const headers = ['SN', 'District', 'Taluka','Center'];
-        const columnWidths = [30, 120, 120,120];
+        const headers = ['SN', 'District', 'Taluka', 'Center'];
+        const columnWidths = [30, 120, 120, 120];
         let x = 50;
         let y = 150;
         const rowHeight = 20;
@@ -323,8 +370,8 @@ const downloadCenterList = asyncHandler(async (req, res) => {
         // Finalize the PDF
         doc.end()
     } catch (error) {
-        console.log('Error while Downloading Centers File',error);
-        return res.status(500).json(new APIResponce(500,{},'Internal Servere Error while Downloading Center File'))
+        console.log('Error while Downloading Centers File', error);
+        return res.status(500).json(new APIResponce(500, {}, 'Internal Servere Error while Downloading Center File'))
     }
 })
 

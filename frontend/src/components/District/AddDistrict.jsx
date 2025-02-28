@@ -26,7 +26,7 @@ function AddDistrict() {
     return (
         <>
         <div className='w-full px-20 py-10 '>
-            <div className='w-full shadow rounded-2xl overflow-hidden border border-gray-50'>
+            <div className='w-full shadow-xl rounded-2xl overflow-hidden border border-gray-50'>
                 <h1 className='text-[1.3vw] px-4 py-1 bg-blue-100 '>
                     Add District
                 </h1>

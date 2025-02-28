@@ -79,6 +79,18 @@ const addRepresentative = asyncHandler(async (req, res) => {
 
 const getAllRepresentatives = asyncHandler(async (req, res) => {
     try {
+        const {centerId}=req.params;
+        
+        let whereCondition = {};
+        
+        if (centerId) {
+            const center = await Center.findByPk(centerId);
+            if (!center) {
+                return res.status(404).json(new APIResponce(404, {}, 'Center Not Found!!!'));
+            }
+            whereCondition = { centerId: centerId };
+        }
+
         const allRepresentative = await Representative.findAll({
             include: [
                 {

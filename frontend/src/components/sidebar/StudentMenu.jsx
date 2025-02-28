@@ -18,7 +18,7 @@ function StudentMenu() {
     const menuData = [
         { title: 'District', items: [{ name: 'Add District', path: '/district' }, { name: 'District List', path: '/district' }] },
         { title: 'Taluka', items: [{ name: 'Add Taluka', path: '/taluka' }, { name: 'Taluka List', path: '/taluka' }] },
-        { title: 'Center', items: [{ name: 'Add Center', path: '/add-center' }, { name: 'Center List', path: '/center-list' }, { name: 'Add Representative', path: '/add-representative' }, { name: 'Representative List', path: '/representative-list' }] },
+        { title: 'Center', items: [{ name: 'Add Center', path: '/center' }, { name: 'Center List', path: '/center' }, { name: 'Add Representative', path: '/representative' }, { name: 'Representative List', path: '/representative' }] },
         { title: 'School', items: [{ name: 'Add School', path: '/add-school' }, { name: 'School List', path: '/school-list' }] },
         { title: 'Student', items: [{ name: 'Add Student', path: '/add-student' }, { name: 'Student List', path: '/student-list' }] }
     ];

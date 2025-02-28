@@ -1,26 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
-import { showToast } from '../../redux/slice/ToastSlice';
-import { useDeleteTalukas, useDownloadTalukaPDF, useTalukas, useUpdateTalukas } from '../../hooks/useTalukas';
+import { useCenters, useDeleteCenter, useDownloadCenterPDF, useUpdateCenter } from '../../hooks/useCenters';
+import { useTalukas } from '../../hooks/useTalukas';
 import { useDistricts } from '../../hooks/useDistricts';
+import { showToast } from '../../redux/slice/ToastSlice';
 import CustomDropdown from '../CustomDropdown';
 
-function TalukaList() {
+function CenterList() {
     const dispatch = useDispatch();
 
     const [rowId, setRowId] = useState(null); // row ID for edit delete
-    const [editedTalukaName, setEditedTalukaName] = useState(''); // current content
+    const [editedCenteraName, setEditedCenterName] = useState(''); // current content
     const [loading, setLoading] = useState(false);
     const [isDisable, setIsDisable] = useState(false)
     const [selectedDistrictId, setSelectedDistrictId] = useState(null);
+    const [selectedTalukaId, setSelectedTalukaId] = useState(null);
 
 
-    const { data: talukas, isLoading, error } = useTalukas(selectedDistrictId);
+    const { data: centers, isLoading, error } = useCenters(selectedDistrictId, selectedTalukaId);
+    const { data: talukas } = useTalukas(selectedDistrictId);
+
     const { data: districts, } = useDistricts();
 
-    const updateTalukaMutation = useUpdateTalukas();
-    const deleteTalukasMuatation = useDeleteTalukas();
-    const { data: pdfUrl, refetch, isFetching } = useDownloadTalukaPDF(selectedDistrictId);
+    const updateCenterMutation = useUpdateCenter();
+    const deleteTalukasMuatation = useDeleteCenter();
+    const { data: pdfUrl, refetch, isFetching } = useDownloadCenterPDF(selectedDistrictId,selectedTalukaId);
 
 
     const handleDownload = () => {
@@ -33,10 +37,12 @@ function TalukaList() {
     }, [pdfUrl]);
 
     const handleEdit = async () => {
-        if (editedTalukaName.trim()) {
+        if (editedCenteraName.trim()) {
             setLoading(true);
-            updateTalukaMutation.mutate({ id: rowId, updatedData: editedTalukaName }, {
-                onSuccess: () => { dispatch(showToast({ message: 'Taluka Name Updated Successfully...' })), setRowId(null), setEditedTalukaName(null) },
+            ;
+            
+            updateCenterMutation.mutate({ id: rowId, newCenterName: editedCenteraName }, {
+                onSuccess: () => { dispatch(showToast({ message: 'Center Name Updated Successfully...' })), setRowId(null), setEditedCenterName(null) },
                 onError: (error) => dispatch(showToast({ message: error, type: 'error' }))
             },
             )
@@ -45,71 +51,76 @@ function TalukaList() {
     }
     const handleDelete = async (id) => {
         setIsDisable(true);
-        if (window.confirm('Do you want to Delete Taluka?')) {
+        if (window.confirm('Do you want to Delete Center?')) {
             deleteTalukasMuatation.mutate({ id }, {
-                onSuccess: () => { dispatch(showToast({ message: 'Taluka Deleted Successfully...' })) },
+                onSuccess: () => { dispatch(showToast({ message: 'Center Deleted Successfully...' })) },
                 onError: (error) => dispatch(showToast({ message: error, type: 'error' }))
             })
         }
         setIsDisable(false);
     }
 
+    useEffect(()=>{
+        setSelectedTalukaId(null)
+    },[selectedDistrictId])
 
 
     useEffect(() => {
         if (error) {
-            dispatch(showToast({ message: error.message || 'Failed to fetch Talukas.', type: 'error' }));
+            dispatch(showToast({ message: error.message || 'Failed to fetch Center.', type: 'error' }));
         }
     }, [error, dispatch]);
 
-    if (isLoading) return <p>Loading districts...</p>;
+    if (isLoading) return <p>Loading Centers...</p>;
 
     return (
         <>
-                <div className='w-full px-20 py-10'>
-                    <div className='flex justify-between'>
-                        <h1 className='text-[1.5vw]'>Talukas <i className="ri-file-list-line"></i></h1>
-                        <div className='flex gap-5 items-center'>
-                            <div className='text-[0.8vw]'>
-                                <label htmlFor="">Sort By:</label>
 
-                                <CustomDropdown options={districts} selectedValue={selectedDistrictId} setSelectedValue={setSelectedDistrictId} placeholder='Select District' labelKey='districtName' dwidth={8} />
+            <div className='w-full px-20 py-10'>
+                <div className='flex justify-between'>
+                    <h1 className='text-[1.5vw]'>Talukas <i className="ri-file-list-line"></i></h1>
+                    <div className='flex gap-5 items-center'>
+                        <div className='text-[0.8vw]'>
+                            <label htmlFor="">Sort By:</label>
 
-                            </div>
-                            <button type='button' className={`mx-1 bg-blue-500 px-2 py-1 rounded-xl text-white hover:border border-black ${talukas?.data?.length === 0?'cursor-not-allowed opacity-50 pointer-events-none':'cursor-pointer'}`} onClick={handleDownload} disabled={isFetching} >{isFetching ? 'Downloading...' : 'Download List'} <i className="ri-download-cloud-2-line text-white"></i></button>
+                            <CustomDropdown options={districts} selectedValue={selectedDistrictId} setSelectedValue={setSelectedDistrictId} placeholder='Select District' labelKey='districtName' dwidth={8} noSelect={true} />
+                            <CustomDropdown options={talukas} selectedValue={selectedTalukaId} setSelectedValue={setSelectedTalukaId} placeholder='Select Taluka' labelKey='talukaName' disable={selectedDistrictId ? false : true} dwidth={8} noSelect={true} />
 
                         </div>
+                        <button type='button' className={`mx-1 bg-blue-500 px-2 py-1 rounded-xl text-white hover:border border-black ${centers?.data?.length === 0?'cursor-not-allowed opacity-50 pointer-events-none':'cursor-pointer'}`} onClick={handleDownload} disabled={isFetching} >{isFetching ? 'Downloading...' : 'Download List'} <i className="ri-download-cloud-2-line text-white"></i></button>
+
                     </div>
-            {talukas?.data?.length > 0 ? (
+                </div>
+                {centers?.data?.length > 0 ? (
                     <div className='w-full flex flex-col justify-center mt-8'>
                         <table className='rounded-2xl'>
                             <thead className='rounded-2xl'>
                                 <tr className='bg-blue-100'>
                                     <th className='w-[10vw] border py-1.5'>Sr.No</th>
-                                    <th className='w-[20vw] border py-1.5'>District </th>
                                     <th className='w-[20vw] border py-1.5'>Taluka </th>
+                                    <th className='w-[20vw] border py-1.5'>Centers </th>
                                     <th className='w-[20vw] border py-1.5'>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {talukas.data.map((taluka, index) => (
-                                    <tr key={taluka.id} className='text-center border hover:bg-gray-300'>
+                                {centers.data.map((center, index) => (
+                                    <tr key={center.id} className='text-center border hover:bg-gray-300'>
                                         <td className='border'>{index + 1}</td>
-                                        <td className='border'>{taluka.districtName}</td>
+                                        <td className='border'>{center.talukaName}</td>
                                         <td className='border'>
-                                            {rowId === taluka.id ? (
+                                            {rowId === center.id ? (
                                                 <input
                                                     type="text"
-                                                    value={editedTalukaName}
-                                                    onChange={(e) => setEditedTalukaName(e.target.value)}
+                                                    value={editedCenteraName}
+                                                    onChange={(e) => setEditedCenterName(e.target.value)}
                                                     className="border px-2 py-1 w-full"
                                                 />
                                             ) : (
-                                                taluka.talukaName
+                                                center.centerName
                                             )}
                                         </td>
                                         <td className='border'>
-                                            {rowId === taluka.id ? (
+                                            {rowId === center.id ? (
                                                 <>
                                                     <button
                                                         type='button'
@@ -132,8 +143,8 @@ function TalukaList() {
                                                         type='button'
                                                         className='cursor-pointer px-3 py-1 border border-amber-400 hover:bg-amber-300 me-2 my-2 rounded transition-all'
                                                         onClick={() => {
-                                                            setRowId(taluka.id);
-                                                            setEditedTalukaName(taluka.talukaName);
+                                                            setRowId(center.id);
+                                                            setEditedCenterName(center.centerName);
                                                         }}
                                                     >
                                                         Edit <i className="ri-edit-line"></i>
@@ -141,7 +152,7 @@ function TalukaList() {
                                                     <button
                                                         type='button'
                                                         className={`cursor-pointer px-3 py-1 border border-red-500 hover:bg-red-400 ms-2 my-2 rounded   transition-all ${isDisable ? "opacity-50 cursor-not-allowed" : ''}`}
-                                                        onClick={() => { handleDelete(taluka.id) }}
+                                                        onClick={() => { handleDelete(center.id) }}
                                                         disabled={isDisable}
                                                     >
                                                         {isDisable ? "Deleting..." : "Delete"} <i className="ri-delete-bin-line"></i>
@@ -154,14 +165,14 @@ function TalukaList() {
                             </tbody>
                         </table>
                     </div>
-            ) : (
-                <div className='flex justify-center pt-16 text-2xl'>
-                <p className='underline underline-offset-2 decoration-red-500'>No Taluka available.....</p>
-            </div>
-            )}
+                ) : (
+                    <div className='flex justify-center pt-16 text-2xl'>
+                        <p className='underline underline-offset-2 decoration-red-500'>No Centers available.....</p>
+                    </div>
+                )}
             </div>
         </>
-    );
+    )
 }
 
-export default TalukaList;
+export default CenterList

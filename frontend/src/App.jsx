@@ -14,6 +14,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import { showToast } from './redux/slice/ToastSlice'
 import District from './pages/District'
 import Taluka from './pages/Taluka'
+import Center from './pages/Center'
+import Representative from './pages/Representative'
 
 function App() {
 
@@ -31,7 +33,7 @@ function App() {
       }
 
     } catch (error) {
-      toast(error)
+      dispatch(showToast({ message: error, type: 'error' }))
     }
   }
 
@@ -58,6 +60,8 @@ function App() {
               <Route element={<ProtededRoute allowedRoles={['superadmin', 'admin']} />}>
                 <Route path='/district' element={<District />} />
                 <Route path='/taluka' element={<Taluka />} />
+                <Route path='/center' element={<Center />} />
+                <Route path='/representative' element={<Representative/>}/>
               </Route>
             </Route>
           </Route>

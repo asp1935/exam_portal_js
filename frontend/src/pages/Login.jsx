@@ -4,7 +4,6 @@ import { useMutation } from '@tanstack/react-query';
 import { useDispatch } from 'react-redux';
 import { setUserData } from '../redux/slice/UserSlice';
 import { useLocation, useNavigate } from 'react-router';
-import { toast } from 'react-toastify';
 import { showToast } from '../redux/slice/ToastSlice';
 
 function Login() {
@@ -18,6 +17,8 @@ function Login() {
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from?.pathName || '/';
+    console.log(from);
+    
     // useMutation for login
     const { mutate, isLoading, isSuccess, isError, error } = useMutation({
         mutationFn: ({ email, password }) => login(email, password),
@@ -29,7 +30,7 @@ function Login() {
             }
         },
         onError: (error) => {
-            dispatch(showToast({ message: error, type: 'success' }))
+            dispatch(showToast({ message: error, type: 'error' }))
         }
     });
 

@@ -14,10 +14,10 @@ const Representative=sequelize.define('Representative',{
     rMobile:{
         type:DataTypes.BIGINT,
         allowNull:false,
-        unique:true
     },
     centerId:{
         type:DataTypes.INTEGER,
+        unique:true,
         // references:{
         //     model:Center,
         //     key:'id'

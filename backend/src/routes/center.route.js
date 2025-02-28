@@ -11,9 +11,9 @@ router.get('/',(req,res)=>{
 });
 
 router.route('/add-center').post(authorize(['add']),addCenter);
-router.route('/get-all-centers').get(authorize(['view']),getAllCenters);
+router.route('/get-centers').get(authorize(['view']),getAllCenters);
 router.route('/update-center/:centerId').patch(authorize(['update']),updateCenter);
 router.route('/delete-center/:centerId').delete(authorize(['delete']),deleteCenter);
-router.route('/download-center-pdf').get(authorize(['view']),downloadCenterList);
+router.route('/download-center-list').get(authorize(['view']),downloadCenterList);
 
 export default router;

@@ -2,46 +2,48 @@ import axios from "axios";
 
 const apiUrl = import.meta.env.VITE_API_URL
 
-export const getTalukas = async (distId = null) => {
+export const getRepresentative = async (centerId = null) => {
     try {
-        const endpoint = distId ? `${apiUrl}/taluka/get-talukas/${distId}` : `${apiUrl}/taluka/get-talukas`;
+        const endpoint = centerId ? `${apiUrl}/representative/get-all-representatives/${centerId}` : `${apiUrl}/representative/get-all-representatives`;
         const response = await axios.get(endpoint, { withCredentials: true });
         return response.data;
     } catch (error) {
-        throw new Error(error.response?.data?.message || "Failed to fetch talukas");
+        throw new Error(error.response?.data?.message || "Failed to fetch Representative!!!");
     }
 };
 
-export const addTaluka = async (districtId, talukaName) => {
+export const addRepresentative = async (centerId, repName,repMobile) => {
     try {
-        const response = await axios.post(`${apiUrl}/taluka/add-taluka`, {districtId, talukaName }, { withCredentials: true });
+        console.log(centerId,repMobile,repName);
+        
+        const response = await axios.post(`${apiUrl}/representative/add-representative`, {centerId,repName,repMobile}, { withCredentials: true });
         return response.data
     } catch (error) {
-        throw error.response?.data?.message || "Failed to Add Taluka";
+        throw error.response?.data?.message || "Failed to Add Representative!!!";
     }
 }
 
-export const updateTaluka = async (talukaId,newTalukaName) => {
+export const updateRepresentative = async (repId,newRepName,newRepMobile) => {
     try {
-        const response = await axios.patch(`${apiUrl}/taluka/update-taluka/${talukaId}`, { newTalukaName }, { withCredentials: true });
+        const response = await axios.patch(`${apiUrl}/representative/update-representative/${repId}`, { newRepName,newRepMobile }, { withCredentials: true });
         return response.data
     } catch (error) {
-        throw error.response?.data?.message || "Failed to Update Talukas";
+        throw error.response?.data?.message || "Failed to Update Representative!!!";
     }
 }
 
-export const deleteTaluka = async (talukaId) => {
+export const deleteRepresentative = async (repId) => {
     try {
-        const response = await axios.delete(`${apiUrl}/taluka/delete-taluka/${talukaId}`, { withCredentials: true });
+        const response = await axios.delete(`${apiUrl}/representative/delete-representative${repId}`, { withCredentials: true });
         return response.data
     } catch (error) {
-        throw error.response?.data?.message || "Failed to Delete Taluka";
+        throw error.response?.data?.message || "Failed to Delete Representative!!!";
     }
 }
 
-export const downloadTalukaPdf = async (distId=null) => {
+export const downloadRepresentativePdf = async (centerId=null) => {
     try {
-        const endpoint = distId ? `${apiUrl}/taluka/download-taluka-list/${distId}` : `${apiUrl}/taluka/download-taluka-list`;
+        const endpoint = centerId ? `${apiUrl}/taluka/download-taluka-list/${centerId}` : `${apiUrl}/taluka/download-taluka-list`;
 
       const response = await axios.get(endpoint, {
         withCredentials: true,
