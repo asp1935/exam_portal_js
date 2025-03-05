@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { addCenter, deleteCenter, downloadCenterPdf, getCenters, updateCenter } from "../api/centerAPI";
 
 // Fetch Districts
-export const useCenters = (districtId,talukaId) => {
+export const useCenters = (districtId=null,talukaId=null) => {
   return useQuery({
     queryKey: ["centers",districtId,talukaId],
     queryFn: ()=>getCenters(districtId,talukaId),

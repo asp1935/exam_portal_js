@@ -16,9 +16,8 @@ function AddCenter() {
     const [centerName, setCenterName] = useState();
     const handleSubmit = (e) => {
         e.preventDefault();
+
         if (centerName.trim() !== '') {
-            console.log(selectedTalukaId,centerName);
-            
             addCenterMutation.mutate({ talukaId: selectedTalukaId, centerName: (centerName.trim()) }, {
                 onSuccess: () => dispatch(showToast({ message: "Center added successfully!" })),
                 onError: (error) => dispatch(showToast({ message: error, type: 'error' })),

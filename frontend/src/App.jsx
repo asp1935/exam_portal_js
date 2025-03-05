@@ -16,6 +16,8 @@ import District from './pages/District'
 import Taluka from './pages/Taluka'
 import Center from './pages/Center'
 import Representative from './pages/Representative'
+import School from './pages/School'
+import Student from './pages/Student'
 
 function App() {
 
@@ -61,7 +63,9 @@ function App() {
                 <Route path='/district' element={<District />} />
                 <Route path='/taluka' element={<Taluka />} />
                 <Route path='/center' element={<Center />} />
-                <Route path='/representative' element={<Representative/>}/>
+                <Route path='/representative' element={<Representative />} />
+                <Route path='/school' element={<School />} />
+                <Route path='/student' element={<Student />} />
               </Route>
             </Route>
           </Route>

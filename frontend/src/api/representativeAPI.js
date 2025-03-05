@@ -34,7 +34,7 @@ export const updateRepresentative = async (repId,newRepName,newRepMobile) => {
 
 export const deleteRepresentative = async (repId) => {
     try {
-        const response = await axios.delete(`${apiUrl}/representative/delete-representative${repId}`, { withCredentials: true });
+        const response = await axios.delete(`${apiUrl}/representative/delete-representative/${repId}`, { withCredentials: true });
         return response.data
     } catch (error) {
         throw error.response?.data?.message || "Failed to Delete Representative!!!";
@@ -43,7 +43,9 @@ export const deleteRepresentative = async (repId) => {
 
 export const downloadRepresentativePdf = async (centerId=null) => {
     try {
-        const endpoint = centerId ? `${apiUrl}/taluka/download-taluka-list/${centerId}` : `${apiUrl}/taluka/download-taluka-list`;
+        console.log(centerId);
+        
+        const endpoint = centerId ? `${apiUrl}/representative/get-representative-pdf/${centerId}` : `${apiUrl}/representative/get-representative-pdf`;
 
       const response = await axios.get(endpoint, {
         withCredentials: true,

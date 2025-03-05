@@ -93,7 +93,7 @@ const addStudent = asyncHandler(async (req, res) => {
     }
 
     // Validate mobile number
-    if (mobile.toString().length !== 10) {
+    if (mobile.toString().length !== 10 || typeof mobile !== 'number') {
         return res.status(400).json(new APIResponce(400, {}, 'Invalid Mobile no Format!!!'));
     }
 
@@ -180,34 +180,40 @@ const getAllStudents = asyncHandler(async (req, res) => {
 });
 
 const updateStudent = asyncHandler(async (req, res) => {
-    const { examNo } = req.params;
-    const { fName, mName, lName, medium, mobile } = req.body;
+    const { studentId } = req.params;
+    const { schoolId, standard, medium, fName, mName, lName, mobile } = req.body;
 
-    if ([examNo, medium, fName, mName, lName, mobile].some(field =>
-        field === undefined || field === null ||
-        (typeof field === 'string' && field.trim() === '') ||
-        (typeof field === 'number' && isNaN(field))
-    )) {
+    if (!studentId) {
+        return res.status(400).json(new APIResponce(400, {}, 'Student Id is Required !!!'));
+    }
+
+    if ([schoolId, standard, medium, fName, mName, lName, mobile].some(field => !field?.toString().trim())) {
         return res.status(400).json(new APIResponce(400, {}, 'All Fields are Required!!!'));
     }
-    if (mobile.toString().length !== 10) {
+
+    if (typeof mobile !== 'number' || mobile.toString().length !== 10) {
         return res.status(400).json(new APIResponce(400, {}, 'Invalid Mobile no Format!!!'));
     }
 
     try {
-        const student = await Student.findOne({
-            where: { examNo }
-        })
+        const student = await Student.findByPk(studentId);
 
         if (!student) {
-            return res.status(404).json(new APIResponce(404, {}, 'Student not Found!!!'))
+            return res.status(404).json(new APIResponce(404, {}, 'Student not Found!!!'));
         }
-        // Update fields
-        student.set({ medium, fName, mName, lName, mobile });
-        await student.save();
+
+        let newExamNo;
+        try {
+            newExamNo = await generateExamNo(schoolId, standard);
+            
+        } catch (err) {
+            return res.status(500).json(new APIResponce(500, {}, 'Error generating exam number!'));
+        }
+
+        await student.update({ medium, fName, mName, lName, mobile, standard, examNo: newExamNo });
 
         const updatedStudent = await Student.findOne({
-            where: { examNo },
+            where: { examNo: newExamNo },
             include: [{
                 model: School,
                 as: 'school',
@@ -230,15 +236,19 @@ const updateStudent = asyncHandler(async (req, res) => {
             }],
             attributes: ['id', 'standard', 'medium', 'fName', 'mName', 'lName', 'mobile', 'examNo'],
         });
+
         if (!updatedStudent) {
-            return res.status(500).json(new APIResponce(500, {}, 'Something Went Wrong!!!'))
+            return res.status(500).json(new APIResponce(500, {}, 'Something Went Wrong!!!'));
         }
-        return res.status(200).json(new APIResponce(200, distructObject(updatedStudent), 'Student Details Updated Successfully...'))
+
+        return res.status(200).json(new APIResponce(200, distructObject(updatedStudent), 'Student Details Updated Successfully...'));
+
     } catch (error) {
-        console.log('Something Went Wrong while updating student Details', error);
-        return res.status(500).json(new APIResponce(500, {}, "Internal Server Error!!!"))
+        console.error('Error updating student details:', error);
+        return res.status(500).json(new APIResponce(500, {}, "Internal Server Error!!!"));
     }
 });
+
 
 const deleteStudent = asyncHandler(async (req, res) => {
     const { examNo } = req.params;

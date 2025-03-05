@@ -2,64 +2,83 @@ import axios from "axios";
 
 const apiUrl = import.meta.env.VITE_API_URL
 
-export const getCenters = async (districtId = null, talukaId = null) => {
+export const getStudents = async (districtId = null, talukaId = null,centerId=null,schoolId) => {
     try {
         // Construct query parameters dynamically
         const params = new URLSearchParams();
         if (districtId) params.append('districtId', districtId);
         if (talukaId) params.append('talukaId', talukaId);
-        console.log(params);
-        
-        const response = await axios.get(`${apiUrl}/center/get-centers?${params.toString()}`, { withCredentials: true });
+        if (centerId) params.append('centerId', centerId);
+        if (schoolId) params.append('schoolId', schoolId);
+
+
+        const response = await axios.get(`${apiUrl}/school/get-schools?${params.toString()}`, { withCredentials: true });
         return response.data;
     } catch (error) {
-        throw new Error(error.response?.data?.message || "Failed to fetch Centers");
+        throw new Error(error.response?.data?.message || "Failed to fetch Students");
     }
 };
 
 
-export const addCenter = async (talukaId, centerName) => {
+export const addStudent = async (studentDetails) => {
     try {
-        console.log(talukaId,centerName);
+        const { schoolId, standard, medium, fName, mName, lName, mobile } = studentDetails;
+        console.log(studentDetails);
         
-        const response = await axios.post(`${apiUrl}/center/add-center`, {talukaId, centerName }, { withCredentials: true });
+        const response = await axios.post(`${apiUrl}/student/add-student`, 
+            {
+                schoolId,
+                standard,
+                medium,
+                fName,
+                mName,
+                lName,
+                mobile,
+            }
+            , { withCredentials: true });
         return response.data
     } catch (error) {
-        throw error.response?.data?.message || "Failed to Add Center";
+        throw error.response?.data?.message || "Failed to Add New Student";
     }
 }
 
-export const updateCenter = async (centerId,newCenterName) => {
+export const updateStudent = async (studentId,updatedDetails) => {
     try {
-        console.log(centerId,newCenterName);
-        
-        const response = await axios.patch(`${apiUrl}/center/update-center/${centerId}`, {newCenterName }, { withCredentials: true });
+        const {schoolId, standard, medium, fName, mName, lName, mobile } = updatedDetails;
+
+        const response = await axios.put(`${apiUrl}/student/update-student/${studentId}`, 
+            { 
+                schoolId,standard,medium,fName,mName,lName,mobile
+            }, 
+            { withCredentials: true });
         return response.data
     } catch (error) {
-        throw error.response?.data?.message || "Failed to Update Talukas";
+        throw error.response?.data?.message || "Failed to Update Student Details";
     }
 }
 
-export const deleteCenter = async (centerId) => {
+export const deleteStudent = async (schoolId) => {
     try {
-        const response = await axios.delete(`${apiUrl}/center/delete-center/${centerId}`, { withCredentials: true });
+        const response = await axios.delete(`${apiUrl}/student/delete-student/${schoolId}`, { withCredentials: true });
         return response.data
     } catch (error) {
-        throw error.response?.data?.message || "Failed to Delete Taluka";
+        throw error.response?.data?.message || "Failed to Delete Student Details";
     }
 }
 
-export const downloadCenterPdf = async (districtId=null,talukaId=null) => {
+export const downloadStudentPdf = async (districtId=null,talukaId=null,centerId=null,schoolId=null) => {
     try {
 
         // Construct query parameters dynamically
-        console.log(districtId,talukaId);
-        
         const params = new URLSearchParams();
         if (districtId) params.append('districtId', districtId);
         if (talukaId) params.append('talukaId', talukaId);
+        if (centerId) params.append('centerID', centerId);
+        if (schoolId) params.append('schoolId', schoolId);
 
-      const response = await axios.get(`${apiUrl}/center/download-center-list?${params.toString()}`, {
+
+
+      const response = await axios.get(`${apiUrl}/student/download-student-list?${params.toString()}`, {
         withCredentials: true,
         responseType: 'blob', //  response is treated as a binary file
       });

@@ -23,7 +23,7 @@ function CenterList() {
     const { data: districts, } = useDistricts();
 
     const updateCenterMutation = useUpdateCenter();
-    const deleteTalukasMuatation = useDeleteCenter();
+    const deleteCenterMuatation = useDeleteCenter();
     const { data: pdfUrl, refetch, isFetching } = useDownloadCenterPDF(selectedDistrictId,selectedTalukaId);
 
 
@@ -52,7 +52,7 @@ function CenterList() {
     const handleDelete = async (id) => {
         setIsDisable(true);
         if (window.confirm('Do you want to Delete Center?')) {
-            deleteTalukasMuatation.mutate({ id }, {
+            deleteCenterMuatation.mutate({ id }, {
                 onSuccess: () => { dispatch(showToast({ message: 'Center Deleted Successfully...' })) },
                 onError: (error) => dispatch(showToast({ message: error, type: 'error' }))
             })
@@ -78,7 +78,7 @@ function CenterList() {
 
             <div className='w-full px-20 py-10'>
                 <div className='flex justify-between'>
-                    <h1 className='text-[1.5vw]'>Talukas <i className="ri-file-list-line"></i></h1>
+                    <h1 className='text-[1.5vw]'>Centers <i className="ri-file-list-line"></i></h1>
                     <div className='flex gap-5 items-center'>
                         <div className='text-[0.8vw]'>
                             <label htmlFor="">Sort By:</label>

@@ -14,7 +14,7 @@ router.get('/',(req,res)=>{
 
 router.route('/add-student').post(authorize(['add']),addStudent);
 router.route('/get-all-students').get(authorize(['view']),getAllStudents);
-router.route('/update-student/:examNo').patch(authorize(['update']),updateStudent);
+router.route('/update-student/:studentId').put(authorize(['update']),updateStudent);
 router.route('/delete-student/:examNo').delete(authorize(['delete']),deleteStudent);
 router.route('/download-student-list').get(authorize(['download']),downloadStudentList);
 

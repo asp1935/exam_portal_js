@@ -11,13 +11,13 @@ const CustomDropdown = ({ options, selectedValue, setSelectedValue, placeholder,
 
     // Filter options based on search input
     const filteredOptions = options?.data.filter(option =>
-        option[labelKey].toLowerCase().includes(searchText.toLowerCase())
+        option[labelKey]?.toLowerCase().includes(searchText?.toLowerCase())
     );
     return (
         <div className='relative inline-block text-left  ms-3 ' style={{ width: `${dwidth}vw` }}>
             {/* Selected Item Display */}
             <div
-                className={`w-full border p-2 rounded-md bg-white text-sm ${disable ? "cursor-not-allowed opacity-50 pointer-events-none" : "cursor-pointer"
+                className={`w-full border p-2 rounded-md bg-white text-sm ${disable ? "cursor-not-allowed opacity-50 pointer-events-none " : "cursor-pointer"
                     }`}
                 onClick={() => setIsOpen(!isOpen)}
             >

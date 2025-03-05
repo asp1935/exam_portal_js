@@ -13,7 +13,7 @@ function AddRepresentative() {
   const [selectedCenterId, setSelectedCenterId] = useState(null);
   const { data: districts } = useDistricts();
   const { data: talukas } = useTalukas(selectedDistrictId);
-  const { data: centers } = useCenters(selectedDistrictId,selectedTalukaId);
+  const { data: centers } = useCenters(selectedDistrictId, selectedTalukaId);
   const addRepresentativeMutation = useAddRepresenatative();
   const dispatch = useDispatch();
   const [representative, setRepresentative] = useState({
@@ -21,9 +21,9 @@ function AddRepresentative() {
     repMobile: ''
   });
   const [errors, setErrors] = useState({
-    repName:'',
-    repMobile:'',
-    repCenter:'',
+    repName: '',
+    repMobile: '',
+    repCenter: '',
   });
 
 
@@ -35,8 +35,8 @@ function AddRepresentative() {
 
   const validateForm = () => {
     const newErrors = {};
-    if(!selectedCenterId){
-      newErrors.repCenter='Please Select Center '
+    if (!selectedCenterId) {
+      newErrors.repCenter = 'Please Select Center '
     }
     if (!representative.repName.trim()) {
       newErrors.repName = 'Name is required.';
@@ -58,12 +58,18 @@ function AddRepresentative() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
       addRepresentativeMutation.mutate({
         centerId: selectedCenterId, repName: (representative.repName).trim(), repMobile: Number(representative.repMobile)
       }, {
-        onSuccess: () => dispatch(showToast({ message: "Representative added successfully!" })),
+        onSuccess: () => {
+          dispatch(showToast({ message: "Representative added successfully!" }))
+          setRepresentative({repName: '',repMobile: ''})
+          setSelectedCenterId(null);
+          setSelectedDistrictId(null);
+          setSelectedTalukaId(null);
+        },
         onError: (error) => dispatch(showToast({ message: error, type: 'error' })),
       })
 
@@ -95,8 +101,8 @@ function AddRepresentative() {
                   <label htmlFor="talukaDropdown" className='block text-[0.9vw] mb-2.5'> <span className=' underline  underline-offset-2 decoration-red-600'>Select Center</span> <i className="ri-arrow-down-s-line"></i> </label>
                   <CustomDropdown options={centers} selectedValue={selectedCenterId} setSelectedValue={setSelectedCenterId} placeholder='Select Center' labelKey='centerName' disable={selectedTalukaId ? false : true} />
                   {errors.repCenter && (
-                                <p className='text-red-500 text-sm mt-1'>{errors.repCenter}</p>
-                            )}
+                    <p className='text-red-500 text-sm mt-1'>{errors.repCenter}</p>
+                  )}
                 </div>
                 <div className=''>
                   <label htmlFor="representative" className='block text-[0.9vw] mb-2.5'><span className=' underline  underline-offset-2 decoration-red-600'>Representative Name</span> <i className="ri-ball-pen-line"></i></label>
@@ -110,9 +116,9 @@ function AddRepresentative() {
                     required
 
                   />
-                   {errors.repName && (
-                                <p className='text-red-500 text-sm mt-1'>{errors.repName}</p>
-                            )}
+                  {errors.repName && (
+                    <p className='text-red-500 text-sm mt-1'>{errors.repName}</p>
+                  )}
                 </div>
                 <div className=''>
                   <label htmlFor="represenatative" className='block text-[0.9vw] mb-2.5'><span className=' underline  underline-offset-2 decoration-red-600'>Mobile No.</span> <i className="ri-ball-pen-line"></i></label>
@@ -126,9 +132,9 @@ function AddRepresentative() {
                     required
 
                   />
-                   {errors.repMobile && (
-                                <p className='text-red-500 text-sm mt-1'>{errors.repMobile}</p>
-                            )}
+                  {errors.repMobile && (
+                    <p className='text-red-500 text-sm mt-1'>{errors.repMobile}</p>
+                  )}
                 </div>
               </div>
 
