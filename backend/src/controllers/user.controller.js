@@ -40,7 +40,6 @@ const createSuperAdmin = asyncHandler(async (req, res) => {
         where: { id: admin.id },
         attributes: { exclude: ['password'] },
     })
-    console.log(createdAdmin);
 
     return res
         .status(201)

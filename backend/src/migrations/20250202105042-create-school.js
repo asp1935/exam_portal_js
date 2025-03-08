@@ -10,11 +10,12 @@ export default {
       centerId:{
         type:Sequelize.INTEGER,
         references:{
-          model:'Talukas',
+          model:'Centers',
           key:'id',
         },
         allowNull:false,
-        onDelete:'CASCADE'
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
       },
       schoolName:{
         type:Sequelize.STRING,

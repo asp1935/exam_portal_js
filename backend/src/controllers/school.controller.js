@@ -48,11 +48,11 @@ const addSchool = asyncHandler(async (req, res) => {
         if (!centerDetails) {
             return res.status(404).json(new APIResponce(404, {}, 'Center not Found!!!'));
         }
-        const newSchool = School.create({
+        const newSchool =await School.create({
             schoolName,
             centerId
         });
-        if (!newSchool) {
+        if (!newSchool) { 
             return res.status(500).json(new APIResponce(500, {}, 'Somethng went wrong while adding new School!!!'))
         }
         return res
@@ -62,6 +62,8 @@ const addSchool = asyncHandler(async (req, res) => {
         if (error.name === 'SequelizeUniqueConstraintError') {
             return res.status(400).json(new APIResponce(400, {}, 'School is Already Exist!!!'))
         } else {
+            console.log(error);
+            
             return res.status(500).json(new APIResponce(500, {}, 'Internal Server Error!!!'))
         }
     }

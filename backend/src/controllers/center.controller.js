@@ -89,7 +89,7 @@ const getAllCenters = asyncHandler(async (req, res) => {
             }
         }
         // Apply filters if IDs are provided
-        if (districtId && talukaId) {
+        if (talukaId) {
             whereCondition = { talukaId };
         } else if (districtId) {
             whereCondition = {

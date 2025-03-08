@@ -10,10 +10,6 @@ const School=sequelize.define('School',{
     },
     centerId:{
         type:DataTypes.INTEGER,
-        // references:{
-        //     model:Center,
-        //     key:'id'
-        // },
         allowNull:false
     },
     schoolName:{
@@ -21,11 +17,7 @@ const School=sequelize.define('School',{
         allowNull:false,
     }
 });
-// School.belongsTo(Center,{
-//     foreignKey:"centerId",
-//     as:"center",
-//     onDelete:'CASCADE',
-// });
+
 
 
 export default School;

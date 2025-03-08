@@ -63,9 +63,9 @@ function AddSchool() {
                     <h1 className='text-[1.3vw] px-4 py-1 bg-blue-100 '>
                         Add School
                     </h1>
-                    <div className='w-full  my-3 px-5 py-2 min-h-56'>
+                    <div className='w-full  my-3 px-5 py-2 min-h-72'>
                         <form onSubmit={handleSubmit}>
-                            <div className='w-full grid grid-cols-2 gap-y-5'>
+                            <div className='w-full grid grid-cols-2 gap-y-8'>
                                 <div>
                                     <label htmlFor="districtDropdown" className='block text-[0.9vw] mb-2.5'> <span className=' underline  underline-offset-2 decoration-red-600'>Select District</span> <i className="ri-arrow-down-s-line"></i> </label>
                                     <CustomDropdown options={districts} selectedValue={selectedDistrictId} setSelectedValue={setSelectedDistrictId} placeholder='Select District' labelKey='districtName' dheigth={20} />
@@ -102,7 +102,7 @@ function AddSchool() {
                                 
                             </div>
 
-                            <div className='w-full h-full flex justify-end mt-5'>
+                            <div className='w-full h-full flex justify-end mt-15'>
                                 <button
                                     type='submit'
                                     className='block bg-blue-400 px-4 py-1 rounded-2xl cursor-pointer hover:outline-1'
